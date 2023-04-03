@@ -4,6 +4,7 @@
 #include "comm/types.h"
 
 #pragma pack(1)
+// GDT 表项的数据结构
 typedef struct _segment_desc_t {
     uint16_t limit15_0;
     uint16_t base15_0;
@@ -11,6 +12,15 @@ typedef struct _segment_desc_t {
     uint16_t attr;
     uint8_t base31_24;
 } segment_desc_t;
+
+// IDT 表项的数据结构
+typedef struct _gate_desc_t {
+    uint16_t offset15_0;
+    uint16_t selector;
+    uint16_t attr;
+    uint16_t offset31_16;
+} gate_desc_t;
+
 #pragma pack()
 
 #define SEG_G         (1 << 15)
@@ -33,5 +43,6 @@ typedef struct _segment_desc_t {
 
 void cpu_init(void);
 void segmen_desc_set(int selector, uint32_t base, uint32_t limit, uint16_t attr);
+void gate_desc_set(gate_desc_t *desc, uint16_t selector, uint32_t offset, uint16_t attr);
 
 #endif
