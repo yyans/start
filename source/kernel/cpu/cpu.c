@@ -20,6 +20,7 @@ void segmen_desc_set(int selector, uint32_t base, uint32_t limit, uint16_t attr)
     desc->base31_24 = (base >> 24) & 0xFF;
 }
 
+// 设置idt表
 void gate_desc_set(gate_desc_t *desc, uint16_t selector, uint32_t offset, uint16_t attr) {
     desc->offset15_0 = offset & 0xFFFF;
     desc->selector = selector;
