@@ -32,3 +32,31 @@ gdt_reload:
 
     .bss
 .comm stack, KERNEL_STACK_SIZE
+
+    .text
+    .extern do_handler_unknown
+    .global exception_handler_unknown
+    # cs eip code_error EFLAGS等由CPU保存
+exception_handler_unknown:
+    # 栈此时布局
+    # eflags cs ip code_error   (CPU)
+    # eax ecx edx ebx esp ebp esi edi  (pusha)
+    # ds es fs gs       (push)
+    # return_address    (call)
+    pusha
+    push %ds
+    push %es
+    push %fs
+    push %gs
+
+    push %esp
+    call do_handler_unknown
+    add $(1*4), %esp
+
+    pop %gs
+    pop %fs
+    pop %es
+    pop %ds
+    popa
+
+    iret

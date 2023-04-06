@@ -61,7 +61,7 @@ static inline void lgdt(uint32_t start, uint32_t size) {
 	__asm__ __volatile__("lgdt %[g]"::[g]"m"(gdt));
 }
 
-// 记载idt表
+// 加载idt表
 static inline void lidt(uint32_t start, uint32_t size) {
 	struct {
 		uint16_t limit;
@@ -73,7 +73,7 @@ static inline void lidt(uint32_t start, uint32_t size) {
 	idt.start15_0 = start & 0xFFFF;
 	idt.limit = size - 1;
 
-	__asm__ __volatile__("lidt %[g]"::[g]"m"(idt));
+	__asm__ __volatile__("lidt %0"::"m"(idt));
 }
 
 static inline uint32_t read_cr0() {
