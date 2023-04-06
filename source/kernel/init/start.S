@@ -33,16 +33,22 @@ gdt_reload:
     .bss
 .comm stack, KERNEL_STACK_SIZE
 
+.macro exception_handler name num with_err_code
     .text
-    .extern do_handler_unknown
-    .global exception_handler_unknown
+    .extern do_handler_\name
+    .global exception_handler_\name
     # cs eip code_error EFLAGS等由CPU保存
-exception_handler_unknown:
+exception_handler_\name:
     # 栈此时布局
     # eflags cs ip code_error   (CPU)
     # eax ecx edx ebx esp ebp esi edi  (pusha)
     # ds es fs gs       (push)
     # return_address    (call)
+    .if \with_err_code == 0
+        push $0 # 错误码
+    .endif
+
+    push $\num # 向量号
     pusha
     push %ds
     push %es
@@ -50,7 +56,7 @@ exception_handler_unknown:
     push %gs
 
     push %esp
-    call do_handler_unknown
+    call do_handler_\name
     add $(1*4), %esp
 
     pop %gs
@@ -59,4 +65,9 @@ exception_handler_unknown:
     pop %ds
     popa
 
+    add $(2*4), %esp
     iret
+.endm
+
+exception_handler unknown, -1, 0
+exception_handler divider, 0, 0
