@@ -9,6 +9,6 @@
 
 #define OS_TICK_MS              10       	// 每毫秒的时钟数
 
-#define OS_VERSION              1
+#define OS_VERSION              "1.0.1"
 
 #endif

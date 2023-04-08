@@ -17,7 +17,7 @@ void kernel_init(boot_info_t *boot_info) {
 
 void init_main() {
     log_printf("welcome to my kernel!");
-    log_printf("Version: %s", OS_VERSION);
+    log_printf("Version: %s %s", OS_VERSION, "kzj os");
     irq_enable_global();
     for(;;) {}
 }
