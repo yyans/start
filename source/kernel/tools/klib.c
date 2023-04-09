@@ -1,5 +1,7 @@
 #include "tools/kilb.h"
 #include "comm/types.h"
+#include "tools/log.h"
+#include "comm/cpu_instr.h"
 
 void kernel_strcpy(char *dest, const char *src) {
     if (!dest || !src) {
@@ -174,5 +176,14 @@ void kernel_vsprintf(char *buf, const char *fmt, va_list args) {
                 state = NORMAL;
                 break;
         }
+    }
+}
+
+void pannic (const char * file, int line, const char * func, const char * cond) {
+    log_printf("assert failed! %s", cond);
+    log_printf("file: %s\nline %d\nfunc: %s\n", file, line, func);
+
+    for (;;) {
+        hlt();
     }
 }

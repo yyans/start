@@ -26,7 +26,7 @@
 
 typedef struct _exception_frame_t {
     int gs, fs, es, ds;
-    int edi, esi, ebp, esp, ebx, edx, ecs, eax;
+    int edi, esi, ebp, esp, ebx, edx, ecx, eax;
     int num;
     int error_code;
     int eip, cs, eflags;
