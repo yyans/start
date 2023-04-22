@@ -12,7 +12,7 @@
   	// 16位代码，务必加上
   	.code16
  	.text
-	.global _start
+	# .global _start
 	// 声明一下这个函数在其他文件种定义
 	.extern boot_entry
 _start:
@@ -33,15 +33,12 @@ _start:
 	int $0x10
 
 read_loader:
-	mov $0x8000, %bx
-	mov $0x2, %ah
-	mov $0x2, %cx
-	// 读取扇区尽量大一些
-	mov $64, %al
-	mov $0x0080, %dx
-	int $0x13
-	// CF0成功
-	// 读取失败就反复读
+	mov $0x8000, %bx      // ES:BX 缓冲区的地址
+	mov $0x2, %ah         // AH固定02H
+	mov $0x2, %cx		  // CH 柱面   CL 扇区
+	mov $64, %al          // AL 扇区数  64这个值只是估计
+	mov $0x0080, %dx      // DH 磁头   DL 驱动器(0-7FH 软盘 80H-FFH 硬盘)
+	int $0x13	          // CF=0 成功
 	jc read_loader
 
 	jmp boot_entry

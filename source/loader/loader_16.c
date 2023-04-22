@@ -81,8 +81,8 @@ static void enter_protect_mode(void) {
 	write_cr0(cr0 | (1 << 0));
 
 	// 清空流水线
-	// 8与硬件细节有关
-	far_jump(8, (uint32_t)protect_mode_entry);
+	// far_jump(8, (uint32_t)protect_mode_entry);
+	__asm__ __volatile__("jmp $8, $protect_mode_entry");
 }
 
 void loader_entry(void) {

@@ -88,6 +88,8 @@ static inline void write_cr0(uint32_t v) {
 
 static inline void far_jump(uint32_t selector, uint32_t offset) {
 	uint32_t addr[] = {offset, selector };
+	// Long Jump with a Far Pointer，远指针长转移
+	// 用于在保护模式下执行跨段远跳转
 	__asm__ __volatile__("ljmpl *(%[a])"::[a]"r"(addr));
 }
 

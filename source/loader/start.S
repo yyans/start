@@ -30,4 +30,4 @@ protect_mode_entry:
 	mov %ax, %es
 	mov %ax, %fs
 	mov %ax, %gs
-	jmp $8, $load_kernel
+	jmp $8,  $load_kernel
