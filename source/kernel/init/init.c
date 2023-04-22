@@ -35,6 +35,7 @@ void init_task_entry (void) {
 void list_test (void) {
     list_t list;
     list_init(&list);
+    log_printf("f: %x, last: %x, count: %d", list_first(&list), list_last(&list), list_count(&list));
 }
 
 void init_main() {
@@ -47,7 +48,7 @@ void init_main() {
     task_init(&first_task, 0, 0);
     write_tr(first_task.tss_sel);
 
-
+    list_test();
     int count = 0;
     for (;;) {
         log_printf("int main: %d", count++);
