@@ -8,6 +8,7 @@
 #include "os_cfg.h"
 #include "tools/kilb.h"
 #include "core/task.h"
+#include "tools/list.h"
 
 static char init_task_stack[1024];
 
@@ -29,6 +30,11 @@ void init_task_entry (void) {
         log_printf("init task: %d", count++);
         task_switch_from_to(&init_task, &first_task);
     }
+}
+
+void list_test (void) {
+    list_t list;
+    list_init(&list);
 }
 
 void init_main() {
