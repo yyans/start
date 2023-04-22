@@ -88,3 +88,30 @@ exception_handler machine_check, 18, 0
 exception_handler smd_exception, 19, 0
 exception_handler virtual_exception, 20, 0
 exception_handler timer, 0x20, 0
+
+    .text
+    .global simple_switch
+    // simple_switch(&from, to)
+simple_switch:
+    // 4(%esp) 是当前任务结构中stack处的地址
+    mov 4(%esp), %eax  // 取from->stack
+    // 取出to任务的stack栈顶指针
+    mov 8(%esp), %edx  // 取to-stack
+
+    // 在当前任务栈中保存上下文
+    push %ebp
+    push %ebx
+    push %esi
+    push %edi
+    // 将当前任务的esp保存入TSS结构体中
+    mov %esp, (%eax)  // from-stack = esp
+    // 切换为to任务的esp
+    mov %edx, %esp    // esp = to->stack
+
+    // to任务栈中恢复上下文
+    pop %edi
+    pop %esi
+    pop %ebx
+    pop %ebp
+
+    ret
