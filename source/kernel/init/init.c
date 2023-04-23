@@ -58,6 +58,35 @@ void list_test (void) {
     log_printf("f: %x, last: %x, count: %d", 
         list_first(&list), list_last(&list), list_count(&list));
 
+    // remove first
+    for (int i = 0; i < 5; i++) {
+        list_node_t * node = list_remove_first(&list);
+        log_printf("remove : first to list: %d, 0x%x", i, (uint32_t)node);
+    }
+
+    log_printf("f: %x, last: %x, count: %d", 
+        list_first(&list), list_last(&list), list_count(&list));
+    
+    // remove
+    list_init(&list);
+    for (int i = 0; i < 5; i++) {
+        list_node_t * node = nodes + i;
+        log_printf("insert : first to list: %d, 0x%x", i, (uint32_t)node);
+        list_insert_last(&list, node);
+    }
+
+    log_printf("f: %x, last: %x, count: %d", 
+        list_first(&list), list_last(&list), list_count(&list));
+
+    for (int i = 0; i < 5; i++) {
+        list_node_t * node = nodes + i;
+        log_printf("remove : first to list: %d, 0x%x", i, (uint32_t)node);
+        list_remove(&list, node);
+    }
+
+    log_printf("f: %x, last: %x, count: %d", 
+        list_first(&list), list_last(&list), list_count(&list));
+
 }
 
 void init_main() {
