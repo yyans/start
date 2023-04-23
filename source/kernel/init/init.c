@@ -87,6 +87,16 @@ void list_test (void) {
     log_printf("f: %x, last: %x, count: %d", 
         list_first(&list), list_last(&list), list_count(&list));
 
+    struct t {
+        int i;
+        list_node_t node;
+    }v = {0x123456};
+
+    list_node_t * v_node = &v.node;
+    struct t * p = list_node_parent(v_node, struct t, node);
+    if (p->i != 0x123456) {
+        log_printf("error");
+    }
 }
 
 void init_main() {
