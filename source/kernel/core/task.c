@@ -55,6 +55,7 @@ int task_init (task_t *task, char * name, uint32_t entry, uint32_t esp) {
 
 void simple_switch (uint32_t **from, uint32_t *to);
 
+// 从 from 任务切换到 to 任务
 void task_switch_from_to (task_t * from, task_t * to) {
     switch_to_tss(to->tss_sel);
     // simple_switch(&from->stack, to->stack);
@@ -79,7 +80,7 @@ void task_mananger_init(void) {
     task_manager.curr_task = (task_t *)0;
 }
 
-// 设置任务为就绪状态 并且加入就绪队列中
+// 设置任务为就绪状态 并且加入就绪队列 队尾 中
 void task_set_ready(task_t * task) {
     list_insert_last(&task_manager.ready_list, &task->run_node);
     task->state = TASK_RUNNING;
@@ -88,4 +89,45 @@ void task_set_ready(task_t * task) {
 // 将任务从就绪队列中移除
 void task_set_block (task_t * task) {
     list_remove(&task_manager.ready_list, &task->run_node);
+}
+
+// 获取接下来要运行的任务
+// 获取当前链表的队首 用之前的宏即可获取这个节点所在结构体的起始地址
+task_t * task_next_run (void) {
+    list_node_t * task_node = list_first(&task_manager.ready_list);
+    
+    return list_node_parent(task_node, task_t, run_node);
+}
+
+// 获取当前正在执行任务的指针
+task_t * task_currnet (void) {
+    return task_manager.curr_task;
+}
+
+// 切换任务
+int sys_sched_yield (void) {
+    if (list_count(&task_manager.ready_list) > 1) {
+        task_t * curr_task = task_currnet();
+
+        task_set_block(curr_task);
+        task_set_ready(curr_task);
+
+        task_dispatch();
+    }
+
+    return 0;
+}
+
+// 任务分配
+// from -> to
+void task_dispatch (void) {
+    task_t * to = task_next_run();
+    if (to != task_manager.curr_task) {
+        task_t * from = task_currnet();
+
+        task_manager.curr_task = to;
+        to->state = TASK_RUNNING;
+
+        task_switch_from_to(from, to);
+    }
 }
