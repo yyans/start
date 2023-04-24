@@ -44,6 +44,8 @@ int task_init (task_t *task, char * name, uint32_t entry, uint32_t esp) {
 
     kernel_strncpy(task->name, name, TASK_NAME_SIZE);
     task->state = TASK_CREATED;
+    task->time_ticks = TASK_TIME_SLICE_DEFAULT;
+    task->slice_ticks = task->time_ticks;
     list_node_init(&task->all_node);
     list_node_init(&task->run_node);
 
@@ -83,7 +85,7 @@ void task_mananger_init(void) {
 // 设置任务为就绪状态 并且加入就绪队列 队尾 中
 void task_set_ready(task_t * task) {
     list_insert_last(&task_manager.ready_list, &task->run_node);
-    task->state = TASK_RUNNING;
+    task->state = TASK_READY;
 }
 
 // 将任务从就绪队列中移除
@@ -129,5 +131,18 @@ void task_dispatch (void) {
         to->state = TASK_RUNNING;
 
         task_switch_from_to(from, to);
+    }
+}
+
+void task_time_tick (void) {
+    task_t * curr_task = task_currnet();
+
+    if (--curr_task->slice_ticks == 0) {
+        curr_task->slice_ticks = curr_task->time_ticks;
+        
+        task_set_block(curr_task);
+        task_set_ready(curr_task);
+
+        task_dispatch();
     }
 }
