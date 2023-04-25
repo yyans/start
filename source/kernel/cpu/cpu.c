@@ -1,6 +1,7 @@
 #include "cpu/cpu.h"
 #include "os_cfg.h"
 #include "comm/cpu_instr.h"
+#include "cpu/irq.h"
 
 static segment_desc_t gdt_table[GDT_TABLE_SIZE];
 
@@ -12,7 +13,7 @@ void segmen_desc_set(int selector, uint32_t base, uint32_t limit, uint16_t attr)
         attr != 0x8000;
         limit /= 0x1000;
     }
-
+    
     desc->limit15_0 = limit & 0xFFFF;
     desc->base15_0 = base & 0xFFFF;
     desc->base23_16 = (base >> 16) & 0xFF;
@@ -29,12 +30,15 @@ void gate_desc_set(gate_desc_t *desc, uint16_t selector, uint32_t offset, uint16
 }
 
 int gdt_alloc_desc() {
+    irq_state_t state = irq_enter_protection();
     for (int i = 1; i < GDT_TABLE_SIZE; i++) {
         segment_desc_t * desc = gdt_table + i;
         if (desc->attr == 0) {
+            irq_leave_protection(state);
             return i * sizeof(segment_desc_t);
         }
     }
+    irq_leave_protection();
     return -1;
 }
 

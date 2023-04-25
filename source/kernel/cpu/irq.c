@@ -239,12 +239,14 @@ void pic_send_eoi (int irq) {
     outb(PIC0_OCW2, PIC_OCW2_EOI);
 }
 
+// 关闭中断  返回此前的中断状态
 irq_state_t irq_enter_protection (void) {
     irq_state_t state = read_eflags();
     irq_disable_global();
     return state;
 }
 
+// 根据之前的状态开/关中断
 void irq_leave_protection (irq_state_t state) {
     write_eflags(state);
 }
