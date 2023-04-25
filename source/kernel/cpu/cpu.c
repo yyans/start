@@ -38,7 +38,7 @@ int gdt_alloc_desc() {
             return i * sizeof(segment_desc_t);
         }
     }
-    irq_leave_protection();
+    irq_leave_protection(state);
     return -1;
 }
 
