@@ -5,7 +5,9 @@
 #include "tools/log.h"
 #include "comm/cpu_instr.h"
 #include "cpu/irq.h"
+#include "comm/cpu_instr.h"
 
+static uint32_t idle_task_stack[IDLE_TASK_SIZE];
 static task_manager_t task_manager;
 
 static int tss_init(task_t *task, uint32_t entry, uint32_t esp) {
@@ -77,6 +79,12 @@ task_t * task_first_task (void) {
     return &task_manager.first_task;
 }
 
+static void idle_task_entry (void) {
+    for (;;) {
+        hlt();
+    }
+}
+
 // 初始化任务管理器
 void task_mananger_init(void) {
     // 初始化就绪队列
@@ -85,22 +93,36 @@ void task_mananger_init(void) {
     list_init(&task_manager.task_list);
     list_init(&task_manager.sleep_list);
     task_manager.curr_task = (task_t *)0;
+    task_init(&task_manager.idle_task, 
+        "idle_task",
+        (uint32_t)idle_task_entry,
+        (uint32_t)idle_task_stack + IDLE_TASK_SIZE
+    );
 }
 
 // 设置任务为就绪状态 并且加入就绪队列 队尾 中
 void task_set_ready(task_t * task) {
+    if (task == &task_manager.idle_task) {
+        return ;
+    }
     list_insert_last(&task_manager.ready_list, &task->run_node);
     task->state = TASK_READY;
 }
 
 // 将任务从就绪队列中移除
 void task_set_block (task_t * task) {
+    if (task == &task_manager.idle_task) {
+        return;
+    }
     list_remove(&task_manager.ready_list, &task->run_node);
 }
 
 // 获取接下来要运行的任务
 // 获取当前链表的队首 用之前的宏即可获取这个节点所在结构体的起始地址
 task_t * task_next_run (void) {
+    if (list_count(&task_manager.ready_list) == 0) {
+        return &task_manager.idle_task;
+    }
     list_node_t * task_node = list_first(&task_manager.ready_list);
     
     return list_node_parent(task_node, task_t, run_node);
@@ -186,6 +208,7 @@ void task_set_sleep (task_t * task, uint32_t ticks) {
 void task_set_wakeup (task_t * task) {
     list_remove(&task_manager.sleep_list, &task->run_node);
 }
+
 void sys_sleep (uint32_t ms) {
     irq_state_t state = irq_enter_protection();
     task_set_block(task_manager.curr_task);

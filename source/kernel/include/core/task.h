@@ -44,6 +44,7 @@ typedef struct _task_manager_t {
     list_t task_list;           // 所有任务队列
 
     task_t first_task;
+    task_t idle_task;
 } task_manager_t;
 
 void task_mananger_init (void);
